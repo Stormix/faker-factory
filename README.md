@@ -1,7 +1,6 @@
 # Faker Factory
 
-A small utility for creating fake models using a factory function. This factory is inspired by Laravel's factory function and assumes
-a class model similar to Eloquent.
+A small utility for creating fake models using a factory function. This factory is inspired by Laravel's factory function that will work with Mongoose models.
 
 ### Example Registration
 
@@ -9,19 +8,16 @@ Register a factory by providing `label`, `class` and `callback` arguments. The c
 [Faker.js](https://github.com/marak/Faker.js/) and should return an object of attributes for your model.
 
 ```js
-const factory = require('faker-factory');
+const factory = require("faker-factory");
 
-class User {
-  constructor(attributes = {}) {
-    this.attributes = attributes;
-  }
-}
+// Your mongoose User model
+const User = require("./models/user");
 
-factory.register('user', User, faker => {
+factory.register("user", User, faker => {
   return {
     firstName: faker.name.firstName(),
     lastName: faker.name.lastName(),
-    email: faker.internet.email(),
+    email: faker.internet.email()
   };
 });
 ```
@@ -32,39 +28,12 @@ Once you've registered your factory bindings, you can make as many models as you
 also replace the default attributes with your own.
 
 ```js
-const factory = require('faker-factory');
+const factory = require("faker-factory");
 
-let users = factory('user', 10).make(); // array of fake users
-let adminUsers = factory('user', 10).make({ isAdmin: true }); // array of fake admin users
+let users = factory("user", 10).make(); // array of fake users
+let adminUsers = factory("user", 10).make({ isAdmin: true }); // array of fake admin users
 ```
 
 ### Instructions For Using Faker Factory
 
-The factory assumes two things about your model class. The first assumption is that the constructor of your
-model takes an object of attributes as it's first argument.
-
-```js
-class User {
-  constructor(attributes = {}) {
-    this.attributes = attributes;
-  }
-}
-```
-
-The second assumption is that your class has a method called create() which will persist your model to your storage engine.
-
-```js
-class User {
-  constructor(attributes = {}) {
-    this.attributes = attributes;
-  }
-  async create() {
-    return await firebase
-      .database()
-      .location('users')
-      .push(this.attributes);
-  }
-}
-```
-
-With these two assumptions, you should be able to create fake models in no time. This is a tiny package, so please feel free to comment or send me a Pull Request.
+The factory assumes that you are using Mongoose ODM.
