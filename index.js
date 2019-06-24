@@ -1,5 +1,5 @@
-const faker = require('faker')
-const registeredFakes = {}
+const faker = require("faker");
+const registeredFakes = {};
 
 class FakerInstance {
   /**
@@ -8,10 +8,10 @@ class FakerInstance {
    * @param  {object} attributes  The fake attributes.
    * @return {FakerInstance}
    */
-  constructor (model, callback) {
-    this.model = model
-    this.callback = callback
-    this.quantity = 1
+  constructor(model, callback) {
+    this.model = model;
+    this.callback = callback;
+    this.quantity = 1;
   }
 
   /**
@@ -19,9 +19,18 @@ class FakerInstance {
    * @param  {object} attributes  Attributes to override the faker data.
    * @return {object|array}
    */
-  create (attributes = {}) {
-    let modelOrArray = this.make(attributes)
-    return Array.isArray(modelOrArray) ? modelOrArray.map(model => model.create()) : modelOrArray.create()
+  async create(attributes = {}) {
+    let modelOrArray = this.make(attributes);
+
+    if (Array.isArray(modelOrArray)) {
+      await modelOrArray.forEach(async model => {
+        await model.save();
+      });
+
+      return modelOrArray;
+    }
+
+    return await modelOrArray.save();
   }
 
   /**
@@ -29,16 +38,16 @@ class FakerInstance {
    * @param  {object} attributes  Attributes to override the faker data.
    * @return {object|array}
    */
-  make (attributes) {
+  make(attributes) {
     if (this.quantity === 1) {
-      return this.createModel(attributes)
+      return this.createModel(attributes);
     }
 
-    const models = []
+    const models = [];
     for (let i = 0; i < this.quantity; i++) {
-      models.push(this.createModel(attributes))
+      models.push(this.createModel(attributes));
     }
-    return models
+    return models;
   }
 
   /**
@@ -46,8 +55,8 @@ class FakerInstance {
    * @param  {object} attributes  The attributes to fill in the model.
    * @return {object}
    */
-  createModel (attributes) {
-    return new this.model(Object.assign(this.callback(faker), attributes))
+  createModel(attributes) {
+    return new this.model(Object.assign(this.callback(faker), attributes));
   }
 }
 
@@ -57,11 +66,11 @@ class FakerInstance {
  * @param  {integer} quantity  The number of fakes to make.
  * @return {FakerInstance}  A faker instance.
  */
-function factory (label, quantity = 1) {
-  let faker = registeredFakes[label]
-  faker.quantity = quantity
-  
-  return faker
+function factory(label, quantity = 1) {
+  let faker = registeredFakes[label];
+  faker.quantity = quantity;
+
+  return faker;
 }
 
 /**
@@ -71,19 +80,19 @@ function factory (label, quantity = 1) {
  * @param  {Function}  callback  A callback that returns an array of faker data.
  */
 factory.register = (label, model, callback) => {
-  registeredFakes[label] = new FakerInstance(model, callback)
-}
+  registeredFakes[label] = new FakerInstance(model, callback);
+};
 
 /**
  * Get a registered faker instance with the factory.
  * @param  {string} label  The label of the faker instance.
  * @return {FakerInstance}  The faker instance.
  */
-factory.getRegisteredFaker = (label) => {
-  return registeredFakes[label]
-}
+factory.getRegisteredFaker = label => {
+  return registeredFakes[label];
+};
 
-factory.FakerInstance = FakerInstance
-factory.faker = faker
+factory.FakerInstance = FakerInstance;
+factory.faker = faker;
 
-module.exports = factory
+module.exports = factory;
