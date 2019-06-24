@@ -1,5 +1,7 @@
 # Faker Factory
 
+Note: This is a fork of https://github.com/thebrubaker/faker-factory specifically forked to work with the Mongoose ODM.
+
 A small utility for creating fake models using a factory function. This factory is inspired by Laravel's factory function that will work with Mongoose models.
 
 ### Example Registration
